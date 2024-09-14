@@ -7,9 +7,10 @@ function App() {
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post('http://127.0.0.1:5000/process_video', {
-        video_name: videoName,
-      })
+      // const response = await axios.post('http://127.0.0.1:5000/process_video', {
+      //   video_name: videoName,
+      // })
+      const response = await axios.post('http://127.0.0.1:5000/hello')
       setMessage(response.data.message)
     } catch (error) {
       console.error('ERROR: ', error)
