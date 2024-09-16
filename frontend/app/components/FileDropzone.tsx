@@ -26,6 +26,7 @@ export function FileDropzone() {
     formData.append("video", selectedFile);
 
     try {
+      console.log("Sending video to backend: ", selectedFile)
       const response = await axios.post(
         "http://127.0.0.1:5000/process_video",
         formData,
@@ -35,7 +36,13 @@ export function FileDropzone() {
           },
         },
       );
+      
       console.log("Video processed successfully:", response.data);
+      console.log("Response data: ", response.data)
+      if (response.data.output_url) {
+        console.log(`Setting processed vid URL to: http://127.0.0.1:5000/${response.data.output_url}`)
+        setProcessedVideoUrl(`http://127.0.0.1:5000/${response.data.output_url}`);
+      }
     } catch (error) {
       console.error("Failed to send request:", error);
     }

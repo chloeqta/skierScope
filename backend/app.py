@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS  # Import CORS
 import os
 from utils.process_video import process_vid
@@ -22,12 +22,16 @@ def process_video_endpoint():
         output_path = os.path.join("output_videos", video_name + "_processed.mp4")
         output_vid = process_vid(video_path, output_path, MODEL_PATH)
 
-        processed_video_url = f"/output_videos/{video_name}_processed.mp4"
+        processed_video_url = f"output_videos/{video_name}_processed.mp4"
         return jsonify({"message": "Video processed successfully", "output_url": processed_video_url}), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/output_videos/<filename>')
+def download_processed_video(filename):
+    print(os.path.abspath('output_videos'))
+    return send_from_directory('output_videos', filename)
 
 
 if __name__ == '__main__':
