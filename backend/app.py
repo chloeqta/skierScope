@@ -1,7 +1,7 @@
-from flask import Flask, request, jsonify, send_from_directory
-from flask_cors import CORS  # Import CORS
-import os
-from utils.process_video import process_vid
+from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS
+import io
+from utils.process_video import process_video
 from utils.constants import MODEL_PATH
 
 app = Flask(__name__)
@@ -9,29 +9,31 @@ CORS(app)
 
 
 @app.route('/process_video', methods=['POST'])
-def process_video_endpoint():
+def apply_model():
     try:
         if 'video' not in request.files:
             return jsonify({"error": "No video file uploaded"}), 400
 
         video_file = request.files['video']
-        video_name = video_file.filename
-        video_path = os.path.join('temp_videos', video_name)
-        video_file.save(video_path)
 
-        output_path = os.path.join("output_videos", video_name + "_processed.mp4")
-        output_vid = process_vid(video_path, output_path, MODEL_PATH)
+        # Process the video in memory
+        inptVid = io.BytesIO()  # In-memory file-like object
+        video_file.save(inptVid)  # Simulate saving the file
+        inptVid.seek(0)  # Rewind to the start of the file
 
-        processed_video_url = f"output_videos/{video_name}_processed.mp4"
-        return jsonify({"message": "Video processed successfully", "output_url": processed_video_url}), 200
+        # Process the video in memory, passing BytesIO as both input and output
+        outptVid = io.BytesIO()  # In-memory file-like object for the processed video
+        process_video(inptVid, outptVid)
+
+        outptVid.seek(0)  # Rewind to the start of the file before sending
+
+        # Send the processed video back to the frontend
+        return send_file(outptVid, mimetype='video/mp4', as_attachment=False, attachment_filename='processed_video.mp4')
 
     except Exception as e:
+        print("error:", str(e))
         return jsonify({"error": str(e)}), 500
 
-@app.route('/output_videos/<filename>')
-def download_processed_video(filename):
-    print(os.path.abspath('output_videos'))
-    return send_from_directory('output_videos', filename)
 
 
 if __name__ == '__main__':
