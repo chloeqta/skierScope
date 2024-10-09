@@ -1,5 +1,5 @@
 import cv2
-from .constants import INPUT_WIDTH, INPUT_HEIGHT, PADDING, BOX_COLOR
+from .constants import INPUT_WIDTH, INPUT_HEIGHT, PADDING, BOX_COLOR, MODEL_PATH
 
 def load_model(modelPath):
     try:
@@ -17,7 +17,6 @@ def get_box_coords(frame, boxes, scale_x, scale_y, i):
     return xmin, xmax, ymin, ymax
 
 def process_video_frame(frame, net):
-    """Processes a single video frame using the loaded model."""
     blob = cv2.dnn.blobFromImage(frame, 1 / 255, (INPUT_WIDTH, INPUT_HEIGHT))
     net.setInput(blob)
     outs = net.forward()[0].T
@@ -33,24 +32,23 @@ def process_video_frame(frame, net):
         cv2.putText(frame, 'skier ' + str(round(confidence, 3)), (xmin, ymin - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, BOX_COLOR, 2)
     return frame
 
-def process_vid(input_path, output_path, model_path):
-    """Processes the entire video and saves the output."""
-    net = load_model(model_path)
-    vid = cv2.VideoCapture(input_path)
+def process_vid(inptPath, outptPath):
+    net = load_model(MODEL_PATH)
+    vid = cv2.VideoCapture(inptPath)
    
     if not vid.isOpened():
-        raise Exception(f"Error opening video file: {input_path}")
+        raise Exception(f"Error opening video file: {inptPath}")
 
-    frame_w, frame_h = int(vid.get(3)), int(vid.get(4))
-    out = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*'mp4v'), 30, (frame_w, frame_h))
+    frameW, frameH = int(vid.get(3)), int(vid.get(4))
+    out = cv2.VideoWriter(outptPath, cv2.VideoWriter_fourcc(*'mp4v'), 30, (frameW, frameH))
 
     while True:
         ret, frame = vid.read()
         if not ret:
             break
-        processed_frame = process_video_frame(frame, net)
-        out.write(processed_frame)
+        processedFrame = process_video_frame(frame, net)
+        out.write(processedFrame)
 
     vid.release()
     out.release()
-    return output_path
+    return outptPath
