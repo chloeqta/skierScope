@@ -85,9 +85,9 @@ export function FileDropzone() {
         </Label>
         <button
           type="submit"
-          className="mt-4 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          className="mt-4 rounded bg-blue-700 px-4 py-2 text-white hover:bg-blue-800"
         >
-          Upload and Process Video
+          Upload and Process
         </button>
       </form>
       {processedVideoUrl && (
