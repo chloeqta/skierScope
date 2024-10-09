@@ -58,3 +58,13 @@ def process_video(inptVidIo, outptVidIo):
 
     # Rewind the output video buffer to the start
     outptVidIo.seek(0)
+
+"""
+def process_image(input_image_path, output_image_path):
+    net = load_model(MODEL_PATH)
+    frame = cv2.imread(input_image_path)
+    if frame is None:
+        raise Exception(f"Failed to read image: {input_image_path}")
+    processed_frame = apply_model_to_frame(frame, net)
+    cv2.imwrite(output_image_path, processed_frame)
+"""
