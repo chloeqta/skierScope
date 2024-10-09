@@ -28,7 +28,7 @@ def apply_model():
         outptVid.seek(0)  # Rewind to the start of the file before sending
 
         # Send the processed video back to the frontend
-        return send_file(outptVid, mimetype='video/mp4', as_attachment=False, attachment_filename='processed_video.mp4')
+        return send_file(outptVid, mimetype='video/mp4', as_attachment=False, download_name='processed_video.mp4')
 
     except Exception as e:
         print("error:", str(e))

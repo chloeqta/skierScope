@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-import io
+import imageio
 from .constants import INPUT_WIDTH, INPUT_HEIGHT, PADDING, BOX_COLOR, MODEL_PATH
 
 def load_model(modelPath):
@@ -36,22 +36,25 @@ def apply_model_to_frame(frame, net):
 
 def process_video(inptVidIo, outptVidIo):
     net = load_model(MODEL_PATH)
-    inptVidBytes = np.asarray(bytearray(inptVidIo.read()), dtype=np.uint8)
-    
-    inptVid = cv2.VideoCapture(io.BytesIO(inptVidBytes))
-    if not inptVid.isOpened():
-        raise Exception(f"Error opening video file")
+    reader = imageio.get_reader(inptVidIo, format='mp4')
+    # Get video metadata
+    meta = reader.get_meta_data()
+    frameW, frameH = meta['size']
+    fps = meta['fps']
 
-    frameW, frameH = int(inptVid.get(3)), int(inptVid.get(4))
-    outptVid = cv2.VideoWriter(outptVidIo, cv2.VideoWriter_fourcc(*'mp4v'), 30, (frameW, frameH))
+     # Create an OpenCV VideoWriter to write processed frames
+    writer = imageio.get_writer(outptVidIo, format='mp4', fps=fps)
 
-    while True:
-        ret, frame = inptVid.read()
-        if not ret:
-            break
+    # Process each frame
+    for frame in reader:
+        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)  # Convert from RGB to BGR (OpenCV format)
         processedFrame = apply_model_to_frame(frame, net)
-        outptVid.write(processedFrame)
+        processedFrame = cv2.cvtColor(processedFrame, cv2.COLOR_BGR2RGB)  # Convert back to RGB
+        writer.append_data(processedFrame)
 
-    inptVid.release()
-    outptVid.release()
+    # Close the reader and writer
+    reader.close()
+    writer.close()
+
+    # Rewind the output video buffer to the start
     outptVidIo.seek(0)
