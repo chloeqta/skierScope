@@ -34,15 +34,15 @@ export function FileDropzone() {
           headers: {
             "Content-Type": "multipart/form-data",
           },
+          responseType: 'blob',
         },
       );
       
       console.log("Video processed successfully:", response.data);
       console.log("Response data: ", response.data)
-      if (response.data.output_url) {
-        console.log(`Setting processed vid URL to: http://127.0.0.1:5000/${response.data.output_url}`)
-        setProcessedVideoUrl(`http://127.0.0.1:5000/${response.data.output_url}`);
-      }
+
+      const url = URL.createObjectURL(response.data);
+      setProcessedVideoUrl(url);
     } catch (error) {
       console.error("Failed to send request:", error);
     }
@@ -85,9 +85,9 @@ export function FileDropzone() {
         </Label>
         <button
           type="submit"
-          className="mt-4 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          className="mt-4 rounded bg-blue-700 px-4 py-2 text-white hover:bg-blue-800"
         >
-          Upload and Process Video
+          Upload and Process
         </button>
       </form>
       {processedVideoUrl && (
